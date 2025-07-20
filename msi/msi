@@ -1,0 +1,128 @@
+#!/bin/bash
+
+function print_help {
+	echo "Syntax: $0 <option>"
+	echo "Where option are"
+	echo
+	echo "Battery charging modes:"
+	echo "  min"
+	echo "  medium"
+	echo "  max"
+	echo
+	echo "Shift modes:"
+	echo "  eco"
+	echo "  comfort"
+	echo "  turbo"
+	echo
+	echo "Fan modes:"
+	echo "  auto"
+	echo "  silent"
+	echo
+	echo "Super battery:"
+	echo "  baton"
+	echo "  batoff"
+	echo
+	echo "Webcam:"
+	echo "  webon"
+	echo "  weboff"
+	echo
+	echo "View all information from EC RAM:"
+	echo "  status"
+}
+
+function calculate_rpm {
+	RAW_RPM=$(cat $1)
+	if [[ RAW_RPM -eq 0 ]]
+	then
+		echo "0"
+		return
+	fi
+	RPM=$((470000/$RAW_RPM))
+	echo $RPM
+}
+
+if [[ $# -eq 0 ]]
+then
+	print_help
+	exit 0
+fi
+
+case $1 in
+	min )
+		echo min | sudo tee /sys/devices/platform/msi-ec/battery_mode
+		echo "Battery charge mode set to $(cat /sys/devices/platform/msi-ec/battery_mode)"
+		;;
+	medium )
+		echo medium | sudo tee /sys/devices/platform/msi-ec/battery_mode
+		echo "Battery charge mode set to $(cat /sys/devices/platform/msi-ec/battery_mode)"
+		;;
+	max )
+		echo max | sudo tee /sys/devices/platform/msi-ec/battery_mode
+		echo "Battery charge mode set to $(cat /sys/devices/platform/msi-ec/battery_mode)"
+		;;
+	eco )
+		echo eco | sudo tee /sys/devices/platform/msi-ec/shift_mode
+		echo "Shift mode set to $(cat /sys/devices/platform/msi-ec/shift_mode)"
+		;;
+	comfort )
+		echo comfort | sudo tee /sys/devices/platform/msi-ec/shift_mode
+		echo "Shift mode set to $(cat /sys/devices/platform/msi-ec/shift_mode)"
+		;;
+	turbo )
+		echo turbo | sudo tee /sys/devices/platform/msi-ec/shift_mode
+		echo "Shift mode set to $(cat /sys/devices/platform/msi-ec/shift_mode)"
+		;;
+	auto )
+		echo auto | sudo tee /sys/devices/platform/msi-ec/fan_mode
+		echo "Fan mode set to $(cat /sys/devices/platform/msi-ec/fan_mode)"
+		;;
+	silent )
+		echo silent | sudo tee /sys/devices/platform/msi-ec/fan_mode
+		echo "Fan mode set to $(cat /sys/devices/platform/msi-ec/fan_mode)"
+		;;
+	baton )
+		echo on | sudo tee /sys/devices/platform/msi-ec/super_battery
+		echo "Super battery mode is $(cat /sys/devices/platform/msi-ec/super_battery)"
+		;;
+	batoff )
+		echo off | sudo tee /sys/devices/platform/msi-ec/super_battery
+		echo "Super battery mode is $(cat /sys/devices/platform/msi-ec/super_battery)"
+		;;
+	webon )
+		echo on | sudo tee /sys/devices/platform/msi-ec/webcam
+		echo "Webcam is $(cat /sys/devices/platform/msi-ec/webcam)"
+		;;
+	weboff )
+		echo off | sudo tee /sys/devices/platform/msi-ec/webcam
+		echo "Webcam is $(cat /sys/devices/platform/msi-ec/webcam)"
+		;;
+	status )
+		echo
+		echo "EC firmware version: $(cat /sys/devices/platform/msi-ec/fw_version). Release date: $(cat /sys/devices/platform/msi-ec/fw_release_date)"
+		echo
+		echo "CPU fan speed: $(calculate_rpm /sys/devices/platform/msi-ec/cpu/realtime_fan_speed) RPM"
+		echo "CPU temperature: $(cat /sys/devices/platform/msi-ec/cpu/realtime_temperature) °C"
+		echo
+		echo "GPU fan speed: $(calculate_rpm /sys/devices/platform/msi-ec/gpu/realtime_fan_speed) RPM"
+		echo "GPU temperature: $(cat /sys/devices/platform/msi-ec/gpu/realtime_temperature) °C"
+		echo
+		echo "Battery charge mode: $(cat /sys/devices/platform/msi-ec/battery_mode)"
+		echo
+		echo "Cooler boost: $(cat /sys/devices/platform/msi-ec/cooler_boost)"
+		echo
+		echo "Fan mode: $(cat /sys/devices/platform/msi-ec/fan_mode)"
+		echo
+		echo "Shift mode: $(cat /sys/devices/platform/msi-ec/shift_mode)"
+		echo
+		echo "Super battery: $(cat /sys/devices/platform/msi-ec/super_battery)"
+		echo
+		echo "Battery status: $(cat /sys/class/power_supply/BAT1/status)"
+		echo
+		echo "Webcam: $(cat /sys/devices/platform/msi-ec/webcam)"
+		echo
+		;;
+	* )
+		print_help
+		exit 1
+		;;
+esac
