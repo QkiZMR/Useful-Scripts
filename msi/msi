@@ -26,6 +26,10 @@ function print_help {
 	echo "  webon"
 	echo "  weboff"
 	echo
+	echo "Cooler boost:"
+	echo "  coolon"
+	echo "  cooloff"
+	echo
 	echo "View all information from EC RAM:"
 	echo "  status"
 }
@@ -122,6 +126,14 @@ case $1 in
 	weboff )
 		echo off | sudo tee /sys/devices/platform/msi-ec/webcam
 		echo "Webcam is $(cat /sys/devices/platform/msi-ec/webcam)"
+		;;
+	coolon )
+		echo on | sudo tee /sys/devices/platform/msi-ec/cooler_boost
+		echo "Cooler boost is $(cat /sys/devices/platform/msi-ec/cooler_boost)"
+		;;
+	cooloff )
+		echo off | sudo tee /sys/devices/platform/msi-ec/cooler_boost
+		echo "Cooler boost is $(cat /sys/devices/platform/msi-ec/cooler_boost)"
 		;;
 	status )
 		echo
