@@ -34,15 +34,12 @@ function print_help {
 	echo "  status"
 }
 
-function calculate_rpm {
-	RAW_RPM=$(cat $1)
-	if [[ RAW_RPM -eq 0 ]]
-	then
-		echo "0"
-		return
-	fi
-	RPM=$((470000/$RAW_RPM))
-	echo $RPM
+function get_gpu_fan_rpm {
+	sensors -J msi_wmi_platform-virtual-0 | jq '."msi_wmi_platform-virtual-0"."fan2"."input"."value"'
+}
+
+function get_cpu_fan_rpm {
+	sensors -J msi_wmi_platform-virtual-0 | jq '."msi_wmi_platform-virtual-0"."fan1"."input"."value"'
 }
 
 function show_charge_info {
@@ -139,10 +136,10 @@ case $1 in
 		echo
 		echo "EC firmware version: $(cat /sys/devices/platform/msi-ec/fw_version). Release date: $(cat /sys/devices/platform/msi-ec/fw_release_date)"
 		echo
-		echo "CPU fan speed: $(calculate_rpm /sys/devices/platform/msi-ec/cpu/realtime_fan_speed) RPM"
+		echo "CPU fan speed: $(get_cpu_fan_rpm) RPM"
 		echo "CPU temperature: $(cat /sys/devices/platform/msi-ec/cpu/realtime_temperature) °C"
 		echo
-		echo "GPU fan speed: $(calculate_rpm /sys/devices/platform/msi-ec/gpu/realtime_fan_speed) RPM"
+		echo "GPU fan speed: $(get_gpu_fan_rpm) RPM"
 		echo "GPU temperature: $(cat /sys/devices/platform/msi-ec/gpu/realtime_temperature) °C"
 		echo
 		echo "Battery charge mode: $(show_charge_mode)"
